@@ -4,38 +4,35 @@ import { generateMonthGridTransposed } from '../lib/dateUtils';
 import DayTile from './DayTile';
 
 export default function MonthGrid({ year, monthIndex, entries, reviews, onDayClick }) {
-    const grid = useMemo(() => generateMonthGridTransposed(year, monthIndex), [year, monthIndex]);
+    const grid = useMemo(
+        () => generateMonthGridTransposed(year, monthIndex),
+        [year, monthIndex]
+    );
 
     return (
-        <div className="animate-fade-in">
-            {/* Month title */}
-            <h4 className="text-text-secondary text-xs font-bold mb-2 tracking-wider uppercase">
+        <div className="month-block">
+            <div className="month-label">
                 {MONTHS[monthIndex]} {year}
-            </h4>
+            </div>
 
-            <div className="flex gap-0">
-                {/* Weekday row labels on the left */}
-                <div className="flex flex-col gap-[3px] mr-1.5 pt-0">
+            <div className="cal-grid">
+                {/* Weekday row labels */}
+                <div className="cal-weekdays">
                     {WEEKDAYS.map((wd) => (
-                        <div
-                            key={wd}
-                            className="h-[28px] sm:h-[30px] flex items-center text-[9px] text-text-muted font-medium leading-none"
-                        >
-                            {wd}
-                        </div>
+                        <div key={wd} className="cal-wd-label">{wd}</div>
                     ))}
                 </div>
 
-                {/* Transposed grid: each column is a week, each row is a weekday */}
-                <div className="flex gap-[3px]">
-                    {grid.map((weekCol, colIdx) => (
-                        <div key={colIdx} className="flex flex-col gap-[3px]">
-                            {weekCol.map((day, rowIdx) => (
+                {/* Week columns */}
+                <div className="cal-weeks">
+                    {grid.map((weekCol, ci) => (
+                        <div key={ci} className="cal-week-col">
+                            {weekCol.map((day, ri) => (
                                 <DayTile
-                                    key={day.dateKey || `empty-${colIdx}-${rowIdx}`}
+                                    key={day.dateKey || `e-${ci}-${ri}`}
                                     day={day}
                                     entry={entries[day.dateKey]}
-                                    reviews={reviews[day.dateKey]}
+                                    reviews={reviews?.[day.dateKey]}
                                     onClick={onDayClick}
                                 />
                             ))}
