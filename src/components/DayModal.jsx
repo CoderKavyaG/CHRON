@@ -4,7 +4,9 @@ import { LEGEND_CONFIG, DEFAULT_CATEGORIES } from '../lib/constants';
 import { formatDisplayDate, isFuture, isToday } from '../lib/dateUtils';
 import * as api from '../lib/api';
 import GoalsSection from './GoalsSection';
+import EventsSection from './EventsSection';
 import toast from 'react-hot-toast';
+
 
 export default function DayModal({ day, entry, onClose, onSave }) {
     const [mood, setMood] = useState(entry?.legend || null);
@@ -91,14 +93,17 @@ export default function DayModal({ day, entry, onClose, onSave }) {
                     <button className="modal-close" onClick={onClose}><X size={16} /></button>
                 </div>
 
-                {/* ── FUTURE DATE: Goals only + planning tag ─────────────────────── */}
+                {/* ── FUTURE DATE: Events + Goals ───────────────────────────────────── */}
                 {future ? (
                     <>
                         <div className="future-day-modal">
                             <div className="future-day-modal__tag">
-                                <CalendarDays size={11} /> Future day — set your goals
+                                <CalendarDays size={11} /> Future day — plan ahead
                             </div>
                         </div>
+                        <div className="modal-section-label">Events & Plans</div>
+                        <EventsSection dateKey={day.dateKey} />
+                        <div className="modal-section-label">Goals & Tasks</div>
                         <GoalsSection dateKey={day.dateKey} readOnly={false} />
                         <div style={{ padding: '0.75rem 1.25rem 1.25rem' }}>
                             <button className="btn-cancel" style={{ width: '100%' }} onClick={onClose}>

@@ -254,6 +254,68 @@ app.delete('/api/goals/:id', auth, (req, res) => {
     res.json({ ok: true });
 });
 
+// ── Events ────────────────────────────────────────────────────────────────────
+// GET /api/events — all events keyed by dateKey
+app.get('/api/events', auth, (req, res) => {
+    const data = readData();
+    res.json(data.events || {});
+});
+
+// GET /api/events/:dateKey
+app.get('/api/events/:dateKey', auth, (req, res) => {
+    const data = readData();
+    res.json((data.events || {})[req.params.dateKey] || []);
+});
+
+// POST /api/events — { dateKey, title, description?, color? }
+app.post('/api/events', auth, (req, res) => {
+    const { dateKey, title, description = '', color = '#22D3EE' } = req.body;
+    if (!dateKey || !title) return res.status(400).json({ error: 'dateKey and title required' });
+    const data = readData();
+    if (!data.events) data.events = {};
+    if (!data.events[dateKey]) data.events[dateKey] = [];
+    const event = {
+        id: `evt-${dateKey}-${Date.now()}`,
+        dateKey, title, description, color,
+        createdAt: new Date().toISOString(),
+    };
+    data.events[dateKey].push(event);
+    writeData(data);
+    res.json(event);
+});
+
+// PUT /api/events/:id
+app.put('/api/events/:id', auth, (req, res) => {
+    const data = readData();
+    if (!data.events) return res.status(404).json({ error: 'Not found' });
+    let updated = null;
+    for (const dateKey of Object.keys(data.events)) {
+        const idx = data.events[dateKey].findIndex(e => e.id === req.params.id);
+        if (idx >= 0) {
+            data.events[dateKey][idx] = { ...data.events[dateKey][idx], ...req.body, updatedAt: new Date().toISOString() };
+            updated = data.events[dateKey][idx];
+            break;
+        }
+    }
+    if (!updated) return res.status(404).json({ error: 'Event not found' });
+    writeData(data);
+    res.json(updated);
+});
+
+// DELETE /api/events/:id
+app.delete('/api/events/:id', auth, (req, res) => {
+    const data = readData();
+    if (!data.events) return res.json({ ok: true });
+    for (const dateKey of Object.keys(data.events)) {
+        const before = data.events[dateKey].length;
+        data.events[dateKey] = data.events[dateKey].filter(e => e.id !== req.params.id);
+        if (!data.events[dateKey].length) delete data.events[dateKey];
+        if ((data.events[dateKey]?.length ?? 0) !== before) break;
+    }
+    writeData(data);
+    res.json({ ok: true });
+});
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
     console.log(`\n  🗂  Archivist API running at http://localhost:${PORT}\n`);

@@ -11,19 +11,22 @@ export default function HomePage() {
     const [entries, setEntries] = useState({});
     const [reviews, setReviews] = useState({});
     const [goals, setGoals] = useState({});
+    const [events, setEvents] = useState({});
     const [selectedDay, setDay] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const fetchData = useCallback(async () => {
         try {
-            const [e, r, g] = await Promise.all([
+            const [e, r, g, ev] = await Promise.all([
                 api.getDays(),
                 api.getReviews(),
                 api.getAllGoals(),
+                api.getAllEvents(),
             ]);
             setEntries(e || {});
             setReviews(r || {});
             setGoals(g || {});
+            setEvents(ev || {});
         } catch (err) {
             console.error('Failed to load data', err);
         } finally {
@@ -83,6 +86,7 @@ export default function HomePage() {
                                                 entries={entries}
                                                 reviews={reviews}
                                                 goals={goals}
+                                                events={events}
                                                 onDayClick={setDay}
                                             />
                                         ))}
