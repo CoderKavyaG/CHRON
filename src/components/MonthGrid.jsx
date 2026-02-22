@@ -3,7 +3,7 @@ import { MONTHS, WEEKDAYS } from '../lib/constants';
 import { generateMonthGridTransposed } from '../lib/dateUtils';
 import DayTile from './DayTile';
 
-export default function MonthGrid({ year, monthIndex, entries, reviews, onDayClick }) {
+export default function MonthGrid({ year, monthIndex, entries, reviews, goals, events, onDayClick }) {
     const grid = useMemo(
         () => generateMonthGridTransposed(year, monthIndex),
         [year, monthIndex]
@@ -31,8 +31,9 @@ export default function MonthGrid({ year, monthIndex, entries, reviews, onDayCli
                                 <DayTile
                                     key={day.dateKey || `e-${ci}-${ri}`}
                                     day={day}
-                                    entry={entries[day.dateKey]}
-                                    reviews={reviews?.[day.dateKey]}
+                                    entry={entries?.[day.dateKey]}
+                                    hasGoals={!!(goals?.[day.dateKey]?.length)}
+                                    hasEvents={!!(events?.[day.dateKey]?.length)}
                                     onClick={onDayClick}
                                 />
                             ))}

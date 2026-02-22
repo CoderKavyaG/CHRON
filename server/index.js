@@ -12,13 +12,13 @@ const SECRET = process.env.JWT_SECRET || 'archivist_dev_secret_change_me';
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 // ── Middlewares ──────────────────────────────────────────────────────────────
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
 app.use(express.json());
 
 // ── Data helpers ─────────────────────────────────────────────────────────────
 function readData() {
     if (!fs.existsSync(DATA_FILE)) {
-        const init = { entries: {}, reviews: {}, categories: [], settings: { name: 'Kavya' } };
+        const init = { entries: {}, reviews: {}, categories: [], settings: { name: 'Kavya' }, goals: {}, events: {} };
         fs.writeFileSync(DATA_FILE, JSON.stringify(init, null, 2));
         return init;
     }
@@ -187,6 +187,69 @@ app.post('/api/import', auth, (req, res) => {
     if (reviews) data.reviews = reviews;
     if (categories) data.categories = categories;
     if (settings) data.settings = settings;
+    writeData(data);
+    res.json({ ok: true });
+});
+
+// ── Goals ───────────────────────────────────────────────────────────────────
+// GET /api/goals — all goals keyed by dateKey
+app.get('/api/goals', auth, (req, res) => {
+    const data = readData();
+    res.json(data.goals || {});
+});
+
+// GET /api/goals/:dateKey — goals for a specific day
+app.get('/api/goals/:dateKey', auth, (req, res) => {
+    const data = readData();
+    res.json((data.goals || {})[req.params.dateKey] || []);
+});
+
+// POST /api/goals — create a new goal { dateKey, title }
+app.post('/api/goals', auth, (req, res) => {
+    const { dateKey, title } = req.body;
+    if (!dateKey || !title) return res.status(400).json({ error: 'dateKey and title required' });
+    const data = readData();
+    if (!data.goals) data.goals = {};
+    if (!data.goals[dateKey]) data.goals[dateKey] = [];
+    const goal = {
+        id: `goal-${dateKey}-${Date.now()}`,
+        dateKey, title,
+        completed: false,
+        createdAt: new Date().toISOString(),
+    };
+    data.goals[dateKey].push(goal);
+    writeData(data);
+    res.json(goal);
+});
+
+// PUT /api/goals/:id — update a goal { completed?, title? }
+app.put('/api/goals/:id', auth, (req, res) => {
+    const data = readData();
+    if (!data.goals) return res.status(404).json({ error: 'Not found' });
+    let updated = null;
+    for (const dateKey of Object.keys(data.goals)) {
+        const idx = data.goals[dateKey].findIndex(g => g.id === req.params.id);
+        if (idx >= 0) {
+            data.goals[dateKey][idx] = { ...data.goals[dateKey][idx], ...req.body, updatedAt: new Date().toISOString() };
+            updated = data.goals[dateKey][idx];
+            break;
+        }
+    }
+    if (!updated) return res.status(404).json({ error: 'Goal not found' });
+    writeData(data);
+    res.json(updated);
+});
+
+// DELETE /api/goals/:id
+app.delete('/api/goals/:id', auth, (req, res) => {
+    const data = readData();
+    if (!data.goals) return res.json({ ok: true });
+    for (const dateKey of Object.keys(data.goals)) {
+        const before = data.goals[dateKey].length;
+        data.goals[dateKey] = data.goals[dateKey].filter(g => g.id !== req.params.id);
+        if (!data.goals[dateKey].length) delete data.goals[dateKey];
+        if (data.goals[dateKey]?.length !== before || !data.goals[dateKey]) break;
+    }
     writeData(data);
     res.json({ ok: true });
 });

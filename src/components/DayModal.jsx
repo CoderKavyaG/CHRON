@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Trash2, Save } from 'lucide-react';
+import { X, Trash2, Save, CalendarDays } from 'lucide-react';
 import { LEGEND_CONFIG, DEFAULT_CATEGORIES } from '../lib/constants';
-import { formatDisplayDate, isFuture } from '../lib/dateUtils';
+import { formatDisplayDate, isFuture, isToday } from '../lib/dateUtils';
 import * as api from '../lib/api';
+import GoalsSection from './GoalsSection';
 import toast from 'react-hot-toast';
 
 export default function DayModal({ day, entry, onClose, onSave }) {
@@ -12,11 +13,11 @@ export default function DayModal({ day, entry, onClose, onSave }) {
     const [showNotes, setShowNotes] = useState(false);
     const [saving, setSaving] = useState(false);
     const future = isFuture(day.dateKey);
+    const todayDay = isToday(day.dateKey);
 
     useEffect(() => {
-        // Load existing reviews + custom categories in parallel
         Promise.all([
-            api.getReviewsDay(day.dateKey),
+            future ? Promise.resolve([]) : api.getReviewsDay(day.dateKey),
             api.getCategories(),
         ]).then(([reviews, customCats]) => {
             const map = {};
@@ -25,7 +26,7 @@ export default function DayModal({ day, entry, onClose, onSave }) {
             setCats(customCats || []);
             if ((reviews || []).length > 0) setShowNotes(true);
         });
-    }, [day.dateKey]);
+    }, [day.dateKey, future]);
 
     // ESC / backdrop close
     const handleBackdrop = e => { if (e.target === e.currentTarget) onClose(); };
@@ -40,24 +41,20 @@ export default function DayModal({ day, entry, onClose, onSave }) {
         setSaving(true);
         try {
             await api.saveDay(day.dateKey, mood);
-            // Save all non-empty reviews
             const allCats = [
                 ...DEFAULT_CATEGORIES,
-                ...cats.map(c => ({ value: c.id, label: c.name })),
+                ...cats.map(c => ({ value: c.id })),
             ];
             await Promise.all(
-                allCats.map(cat => {
-                    const text = reviewInputs[cat.value]?.trim();
-                    if (text) return api.saveReview(day.dateKey, cat.value, text);
-                    return null;
-                }).filter(Boolean)
+                allCats
+                    .filter(cat => reviewInputs[cat.value]?.trim())
+                    .map(cat => api.saveReview(day.dateKey, cat.value, reviewInputs[cat.value].trim()))
             );
             toast.success('Saved! ✨');
             await onSave();
             onClose();
-        } catch (err) {
+        } catch {
             toast.error('Failed to save');
-            console.error(err);
         } finally {
             setSaving(false);
         }
@@ -81,25 +78,39 @@ export default function DayModal({ day, entry, onClose, onSave }) {
 
     return (
         <div className="modal-overlay" onClick={handleBackdrop}>
-            <div className="modal-box anim-scale-in">
+            <div className="modal-box anim-scale-in" style={{ maxHeight: '88vh', overflowY: 'auto' }}>
 
                 {/* Header */}
                 <div className="modal-header">
                     <div>
-                        <div className="modal-title">How was your day?</div>
+                        <div className="modal-title">
+                            {future ? '📅 Plan this day' : todayDay ? '✏️ Today' : '📖 Journal entry'}
+                        </div>
                         <div className="modal-date">{formatDisplayDate(day.dateKey)}</div>
                     </div>
                     <button className="modal-close" onClick={onClose}><X size={16} /></button>
                 </div>
 
+                {/* ── FUTURE DATE: Goals only + planning tag ─────────────────────── */}
                 {future ? (
-                    <div style={{ padding: '1.5rem 1.25rem', color: 'var(--text-3)', fontSize: '0.875rem', textAlign: 'center' }}>
-                        Cannot create entries for future dates.
-                    </div>
+                    <>
+                        <div className="future-day-modal">
+                            <div className="future-day-modal__tag">
+                                <CalendarDays size={11} /> Future day — set your goals
+                            </div>
+                        </div>
+                        <GoalsSection dateKey={day.dateKey} readOnly={false} />
+                        <div style={{ padding: '0.75rem 1.25rem 1.25rem' }}>
+                            <button className="btn-cancel" style={{ width: '100%' }} onClick={onClose}>
+                                Done
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     <>
-                        {/* Mood pills */}
-                        <div className="mood-pills">
+                        {/* ── MOOD SECTION ─────────────────────────────────────────────── */}
+                        <div className="modal-section-label">How was your day?</div>
+                        <div className="mood-pills" style={{ paddingTop: 0 }}>
                             {Object.entries(LEGEND_CONFIG).map(([type, cfg]) => (
                                 <button
                                     key={type}
@@ -117,15 +128,18 @@ export default function DayModal({ day, entry, onClose, onSave }) {
                             ))}
                         </div>
 
-                        {/* Notes */}
-                        <div className="modal-divider" />
-                        <div className="modal-reviews">
-                            {!showNotes ? (
-                                <button className="modal-reviews__toggle" onClick={() => setShowNotes(true)}>
-                                    + Add notes (optional)
-                                </button>
-                            ) : (
-                                <div style={{ maxHeight: '200px', overflowY: 'auto', paddingBottom: '0.5rem' }}>
+                        {/* ── GOALS SECTION ─────────────────────────────────────────────── */}
+                        <div className="modal-section-label">Goals & Tasks</div>
+                        <GoalsSection dateKey={day.dateKey} readOnly={false} />
+
+                        {/* ── NOTES SECTION ─────────────────────────────────────────────── */}
+                        <div className="modal-section-label" style={{ cursor: 'pointer' }}
+                            onClick={() => setShowNotes(s => !s)}>
+                            Notes {showNotes ? '▾' : '▸'}
+                        </div>
+                        {showNotes && (
+                            <div className="modal-reviews" style={{ paddingBottom: '0.5rem' }}>
+                                <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
                                     {allCats.map(cat => (
                                         <div key={cat.value} className="review-field">
                                             <label className="review-label">{cat.emoji} {cat.label}</label>
@@ -141,13 +155,13 @@ export default function DayModal({ day, entry, onClose, onSave }) {
                                         </div>
                                     ))}
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
-                        {/* Actions */}
+                        {/* ── ACTIONS ───────────────────────────────────────────────────── */}
                         <div className="modal-actions">
                             <button className="btn-save" onClick={handleSave} disabled={saving}>
-                                <Save size={14} /> {saving ? 'Saving…' : 'Save'}
+                                <Save size={14} /> {saving ? 'Saving…' : 'Save Day'}
                             </button>
                             {entry && (
                                 <button className="btn-delete" onClick={handleDelete} title="Delete entry">

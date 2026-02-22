@@ -1,7 +1,7 @@
 import { LEGEND_CONFIG, DEFAULT_COLOR } from '../lib/constants';
 import { isToday, isFuture, formatShortDate } from '../lib/dateUtils';
 
-export default function DayTile({ day, entry, onClick }) {
+export default function DayTile({ day, entry, hasGoals, hasEvents, onClick }) {
     if (!day.isValid) {
         return <div className="day-tile--empty" />;
     }
@@ -20,11 +20,14 @@ export default function DayTile({ day, entry, onClick }) {
         <button
             className={cls}
             style={{ backgroundColor: bg, color }}
-            onClick={() => !future && onClick(day)}
-            disabled={future}
+            onClick={() => onClick(day)}
             title={formatShortDate(day.dateKey)}
         >
             {String(day.dayNumber).padStart(2, '0')}
+            {/* Goals dot (purple) */}
+            {hasGoals && <span className="day-tile__goal-dot" />}
+            {/* Events dot (cyan) — will be used in next feature */}
+            {hasEvents && <span className="day-tile__event-dot" />}
         </button>
     );
 }

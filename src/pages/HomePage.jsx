@@ -10,14 +10,20 @@ export default function HomePage() {
     const [year, setYear] = useState(new Date().getFullYear());
     const [entries, setEntries] = useState({});
     const [reviews, setReviews] = useState({});
+    const [goals, setGoals] = useState({});
     const [selectedDay, setDay] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const fetchData = useCallback(async () => {
         try {
-            const [e, r] = await Promise.all([api.getDays(), api.getReviews()]);
+            const [e, r, g] = await Promise.all([
+                api.getDays(),
+                api.getReviews(),
+                api.getAllGoals(),
+            ]);
             setEntries(e || {});
             setReviews(r || {});
+            setGoals(g || {});
         } catch (err) {
             console.error('Failed to load data', err);
         } finally {
@@ -76,6 +82,7 @@ export default function HomePage() {
                                                 monthIndex={mi}
                                                 entries={entries}
                                                 reviews={reviews}
+                                                goals={goals}
                                                 onDayClick={setDay}
                                             />
                                         ))}
@@ -83,14 +90,10 @@ export default function HomePage() {
                                 </div>
                             ))}
                         </div>
-
-                        {/* Desktop sidebar */}
                         <div className="main-layout__sidebar">
                             <MoodLegend />
                         </div>
                     </div>
-
-                    {/* Mobile legend */}
                     <MoodLegend inline />
                 </>
             )}

@@ -63,10 +63,8 @@ export const deleteDay = (dateKey) => req('DELETE', `/api/days/${dateKey}`);
 // ── Reviews ───────────────────────────────────────────────────────────────────
 export const getReviews = () => req('GET', '/api/reviews');
 export const getReviewsDay = (dateKey) => req('GET', `/api/reviews/${dateKey}`);
-export const saveReview = (dateKey, category, content) =>
-    req('POST', '/api/reviews', { dateKey, category, content });
-export const deleteReview = (dateKey, category) =>
-    req('DELETE', `/api/reviews/${dateKey}/${category}`);
+export const saveReview = (dateKey, category, content) => req('POST', '/api/reviews', { dateKey, category, content });
+export const deleteReview = (dateKey, category) => req('DELETE', `/api/reviews/${dateKey}/${category}`);
 
 // ── Categories ────────────────────────────────────────────────────────────────
 export const getCategories = () => req('GET', '/api/categories');
@@ -80,3 +78,17 @@ export const saveSettings = (data) => req('PUT', '/api/settings', data);
 // ── Export / Import ───────────────────────────────────────────────────────────
 export const exportData = () => req('GET', '/api/export');
 export const importData = (data) => req('POST', '/api/import', data);
+
+// ── Goals ─────────────────────────────────────────────────────────────────────
+export const getAllGoals = () => req('GET', '/api/goals');
+export const getGoalsDay = (dateKey) => req('GET', `/api/goals/${dateKey}`);
+export const addGoal = (dateKey, title) => req('POST', '/api/goals', { dateKey, title });
+export const updateGoal = (id, updates) => req('PUT', `/api/goals/${id}`, updates);
+export const deleteGoal = (id) => req('DELETE', `/api/goals/${id}`);
+
+// ── Events ────────────────────────────────────────────────────────────────────
+export const getAllEvents = () => req('GET', '/api/events');
+export const getEventsDay = (dateKey) => req('GET', `/api/events/${dateKey}`);
+export const addEvent = (dateKey, title, desc, color) => req('POST', '/api/events', { dateKey, title, description: desc, color });
+export const updateEvent = (id, updates) => req('PUT', `/api/events/${id}`, updates);
+export const deleteEvent = (id) => req('DELETE', `/api/events/${id}`);
