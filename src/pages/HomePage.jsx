@@ -5,6 +5,8 @@ import * as api from '../lib/api';
 import MonthGrid from '../components/MonthGrid';
 import MoodLegend from '../components/MoodLegend';
 import DayModal from '../components/DayModal';
+import StatsRibbon from '../components/StatsRibbon';
+import UpcomingRibbon from '../components/UpcomingRibbon';
 
 export default function HomePage() {
     const [year, setYear] = useState(new Date().getFullYear());
@@ -44,7 +46,6 @@ export default function HomePage() {
                     <span className="hero__tag">Personal Archivist</span>
                     <span className="hero__version">V 1.0</span>
                 </div>
-
                 <h1 className="hero__title">
                     <button className="hero__nav-btn" onClick={() => setYear(y => y - 1)}>
                         <ChevronLeft size={15} />
@@ -55,12 +56,19 @@ export default function HomePage() {
                         <ChevronRight size={15} />
                     </button>
                 </h1>
-
                 <p className="hero__sub">
                     A visual autobiography of your emotional journey. Every square holds a memory,
                     every color tells a story.
                 </p>
             </div>
+
+            {/* Stats + Upcoming — only shown once data is loaded */}
+            {!loading && (
+                <>
+                    <StatsRibbon entries={entries} />
+                    <UpcomingRibbon events={events} />
+                </>
+            )}
 
             {loading ? (
                 <div style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--text-3)', fontSize: '0.9rem' }}>
