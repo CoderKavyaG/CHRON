@@ -21,12 +21,23 @@ export default function DayModal({ day, entry, onClose, onSave }) {
         Promise.all([
             future ? Promise.resolve([]) : api.getReviewsDay(day.dateKey),
             api.getCategories(),
-        ]).then(([reviews, customCats]) => {
+            future ? Promise.resolve([]) : api.getGoalsDay(day.dateKey),
+        ]).then(([reviews, customCats, goals]) => {
             const map = {};
             (reviews || []).forEach(r => { map[r.category] = r.content; });
+
+            // Auto-fill wins from completed goals (only if not already written)
+            if (!map['wins']) {
+                const done = (goals || []).filter(g => g.completed).map(g => `✓ ${g.title}`);
+                if (done.length > 0) map['wins'] = done.join('\n');
+            }
+
             setReviews(map);
             setCats(customCats || []);
-            if ((reviews || []).length > 0) setShowNotes(true);
+            // Auto-open notes if there's content OR completed goals
+            if ((reviews || []).length > 0 || (goals || []).some(g => g.completed)) {
+                setShowNotes(true);
+            }
         });
     }, [day.dateKey, future]);
 
@@ -43,8 +54,10 @@ export default function DayModal({ day, entry, onClose, onSave }) {
         setSaving(true);
         try {
             await api.saveDay(day.dateKey, mood);
+            // Save standard categories + wins + any custom categories
             const allCats = [
                 ...DEFAULT_CATEGORIES,
+                { value: 'wins', label: 'Wins', emoji: '🏆' },
                 ...cats.map(c => ({ value: c.id })),
             ];
             await Promise.all(
@@ -144,7 +157,23 @@ export default function DayModal({ day, entry, onClose, onSave }) {
                         </div>
                         {showNotes && (
                             <div className="modal-reviews" style={{ paddingBottom: '0.5rem' }}>
-                                <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+                                {/* Wins field — pre-fills from completed goals */}
+                                <div className="review-field">
+                                    <label className="review-label">
+                                        🏆 Wins today
+                                        <span style={{ fontWeight: 400, color: 'var(--text-3)', marginLeft: '0.375rem', textTransform: 'none', fontSize: '0.625rem' }}>
+                                            auto-filled from completed goals
+                                        </span>
+                                    </label>
+                                    <textarea
+                                        className="review-textarea"
+                                        placeholder="What did you accomplish?"
+                                        rows={2}
+                                        value={reviewInputs['wins'] || ''}
+                                        onChange={e => setReviews(p => ({ ...p, wins: e.target.value }))}
+                                    />
+                                </div>
+                                <div style={{ maxHeight: '160px', overflowY: 'auto' }}>
                                     {allCats.map(cat => (
                                         <div key={cat.value} className="review-field">
                                             <label className="review-label">{cat.emoji} {cat.label}</label>
