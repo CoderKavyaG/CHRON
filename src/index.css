@@ -1675,3 +1675,60 @@ body {
   opacity: 0.75;
   box-shadow: inset 0 0 0 1.5px rgba(139, 92, 246, 0.7), 0 4px 14px rgba(0, 0, 0, 0.4);
 }
+
+/* ============================================
+   PER-MONTH EVENT REMINDER LIST
+============================================ */
+.month-events {
+  margin-top: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.month-event-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.month-event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.month-event-date {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-3);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 44px;
+}
+
+.month-event-title {
+  font-size: 0.6875rem;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .month-event-date {
+    min-width: 36px;
+    font-size: 0.5625rem;
+  }
+
+  .month-event-title {
+    font-size: 0.625rem;
+  }
+}
