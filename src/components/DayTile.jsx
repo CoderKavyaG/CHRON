@@ -15,18 +15,24 @@ export default function DayTile({ day, entry, hasGoals, hasEvents, onClick }) {
     let cls = 'day-tile';
     if (future) cls += ' day-tile--future';
     if (today) cls += ' day-tile--today';
+    if (future && (hasGoals || hasEvents)) cls += ' day-tile--future-planned';
+
+    // Tooltip: date + any plan hints
+    const hints = [];
+    if (hasGoals) hints.push('goals');
+    if (hasEvents) hints.push('events');
+    const tipExtra = hints.length ? ` · ${hints.join(' & ')}` : (future ? ' · click to plan' : '');
+    const tip = formatShortDate(day.dateKey) + tipExtra;
 
     return (
         <button
             className={cls}
             style={{ backgroundColor: bg, color }}
             onClick={() => onClick(day)}
-            title={formatShortDate(day.dateKey)}
+            title={tip}
         >
             {String(day.dayNumber).padStart(2, '0')}
-            {/* Goals dot (purple) */}
             {hasGoals && <span className="day-tile__goal-dot" />}
-            {/* Events dot (cyan) — will be used in next feature */}
             {hasEvents && <span className="day-tile__event-dot" />}
         </button>
     );

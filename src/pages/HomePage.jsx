@@ -8,6 +8,28 @@ import DayModal from '../components/DayModal';
 import StatsRibbon from '../components/StatsRibbon';
 import UpcomingRibbon from '../components/UpcomingRibbon';
 
+function YearProgress({ year }) {
+    const now = new Date();
+    const start = new Date(year, 0, 1);
+    const end = new Date(year + 1, 0, 1);
+    const pct = Math.round(((now - start) / (end - start)) * 100);
+    // Day-of-year
+    const dayOfYear = Math.floor((now - start) / 86400000) + 1;
+    // Days in this year
+    const daysInYear = new Date(year, 1, 29).getMonth() === 1 ? 366 : 365;
+
+    return (
+        <div className="year-progress">
+            <div className="year-progress__bar">
+                <div className="year-progress__fill" style={{ width: `${pct}%` }} />
+            </div>
+            <span className="year-progress__label">
+                Day {dayOfYear} of {daysInYear} — {pct}% of {year} done
+            </span>
+        </div>
+    );
+}
+
 export default function HomePage() {
     const [year, setYear] = useState(new Date().getFullYear());
     const [entries, setEntries] = useState({});
@@ -38,14 +60,18 @@ export default function HomePage() {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
+    const currentYear = new Date().getFullYear();
+
     return (
         <div className="page-home">
-            {/* Hero */}
+
+            {/* ── Hero ─────────────────────────────────────────────────────────── */}
             <div className="hero anim-fade-in">
                 <div className="hero__badge">
                     <span className="hero__tag">Personal Archivist</span>
                     <span className="hero__version">V 1.0</span>
                 </div>
+
                 <h1 className="hero__title">
                     <button className="hero__nav-btn" onClick={() => setYear(y => y - 1)}>
                         <ChevronLeft size={15} />
@@ -56,13 +82,17 @@ export default function HomePage() {
                         <ChevronRight size={15} />
                     </button>
                 </h1>
+
                 <p className="hero__sub">
                     A visual autobiography of your emotional journey. Every square holds a memory,
                     every color tells a story.
                 </p>
+
+                {/* Year progress — only for current year */}
+                {year === currentYear && <YearProgress year={year} />}
             </div>
 
-            {/* Stats + Upcoming — only shown once data is loaded */}
+            {/* ── Stats + Upcoming ─────────────────────────────────────────────── */}
             {!loading && (
                 <>
                     <StatsRibbon entries={entries} />
@@ -70,6 +100,7 @@ export default function HomePage() {
                 </>
             )}
 
+            {/* ── Calendar ─────────────────────────────────────────────────────── */}
             {loading ? (
                 <div style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--text-3)', fontSize: '0.9rem' }}>
                     Loading your journal…
@@ -110,6 +141,7 @@ export default function HomePage() {
                 </>
             )}
 
+            {/* ── Day Modal ────────────────────────────────────────────────────── */}
             {selectedDay && (
                 <DayModal
                     day={selectedDay}
