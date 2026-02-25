@@ -89,15 +89,10 @@ export default function HomePage() {
                     </div>
 
                     <div className="hero__right">
-                        <GoalSidebar day={selectedDay} />
+                        <GoalSidebar day={selectedDay} allEvents={events} />
                     </div>
                 </div>
             </div>
-
-            {/* ── Upcoming ─────────────────────────────────────────────────── */}
-            {!loading && (
-                <UpcomingRibbon events={events} />
-            )}
 
             {/* ── Calendar ─────────────────────────────────────────────────────── */}
             {loading ? (
