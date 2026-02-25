@@ -8,13 +8,13 @@ export default function Header() {
     return (
         <header className="site-header">
             <div className="site-header__inner">
-                <Link to="/" className="site-logo">Archivist</Link>
+                <Link to="/" className="site-logo">KG</Link>
                 <div className="site-header__actions">
-                    <Link to="/settings" className="icon-btn" title="Settings">
-                        <Settings size={16} />
+                    <Link to="/settings" className="icon-btn icon-btn--profile" title="Settings">
+                        <div className="profile-circle" />
                     </Link>
                     <button className="icon-btn" title="Sign out" onClick={logout}>
-                        <LogOut size={16} />
+                        <div className="nav-arrow-right" />
                     </button>
                 </div>
             </div>

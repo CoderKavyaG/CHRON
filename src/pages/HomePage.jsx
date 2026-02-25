@@ -24,7 +24,7 @@ function YearProgress({ year }) {
                 <div className="year-progress__fill" style={{ width: `${pct}%` }} />
             </div>
             <span className="year-progress__label">
-                Day {dayOfYear} of {daysInYear} — {pct}% of {year} done
+                {pct}% of {year} completed
             </span>
         </div>
     );
@@ -67,25 +67,12 @@ export default function HomePage() {
 
             {/* ── Hero ─────────────────────────────────────────────────────────── */}
             <div className="hero anim-fade-in">
-                <div className="hero__badge">
-                    <span className="hero__tag">Personal Archivist</span>
-                    <span className="hero__version">V 1.0</span>
-                </div>
-
-                <h1 className="hero__title">
-                    <button className="hero__nav-btn" onClick={() => setYear(y => y - 1)}>
-                        <ChevronLeft size={15} />
-                    </button>
-                    <span className="hero__year-muted">THE YEAR&nbsp;</span>
-                    <span className="hero__year-accent">{year}</span>
-                    <button className="hero__nav-btn" onClick={() => setYear(y => y + 1)}>
-                        <ChevronRight size={15} />
-                    </button>
+                <h1 className="hero__title hero__title--custom">
+                    HEY KAVI, WELCOME TO RUINS
                 </h1>
 
-                <p className="hero__sub">
-                    A visual autobiography of your emotional journey. Every square holds a memory,
-                    every color tells a story.
+                <p className="hero__sub hero__sub--custom">
+                    THE YEAR {year} - VISUAL AUTOGRAPHY OF ME AND MY JOURNEY
                 </p>
 
                 {/* Year progress — only for current year */}

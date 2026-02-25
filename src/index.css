@@ -190,6 +190,29 @@ body {
   border-color: var(--border-2);
 }
 
+.icon-btn--profile {
+  border-radius: 50%;
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.profile-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-3);
+}
+
+.nav-arrow-right {
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--text-3);
+  border-right: 2px solid var(--text-3);
+  transform: rotate(45deg);
+  margin-right: 3px;
+}
+
 /* Footer */
 .site-footer {
   padding: 1.5rem 2rem;
@@ -256,6 +279,21 @@ body {
   flex-wrap: wrap;
 }
 
+.hero__title--custom {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 1rem;
+}
+
+.hero__sub--custom {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 2rem;
+}
+
 .hero__year-nav {
   display: inline-flex;
   align-items: center;
@@ -295,6 +333,34 @@ body {
   color: var(--text-2);
   max-width: 520px;
   line-height: 1.6;
+}
+
+/* Year Progress */
+.year-progress {
+  margin-top: 1.5rem;
+  max-width: 500px;
+}
+
+.year-progress__bar {
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 0.625rem;
+  border: 1px solid var(--border);
+}
+
+.year-progress__fill {
+  height: 100%;
+  background: var(--text-2);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.year-progress__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
 }
 
 /* Main layout: calendar + sidebar */
