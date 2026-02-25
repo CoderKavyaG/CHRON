@@ -2,10 +2,12 @@ import { useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { QUADRIMESTERS } from '../lib/constants';
 import * as api from '../lib/api';
+import toast from 'react-hot-toast';
 import MonthGrid from '../components/MonthGrid';
-import MoodLegend from '../components/MoodLegend';
 import DayModal from '../components/DayModal';
 import UpcomingRibbon from '../components/UpcomingRibbon';
+import GoalSidebar from '../components/GoalSidebar';
+import { formatDateKey, isFuture } from '../lib/dateUtils';
 
 function YearProgress({ year }) {
     const now = new Date();
@@ -35,7 +37,13 @@ export default function HomePage() {
     const [reviews, setReviews] = useState({});
     const [goals, setGoals] = useState({});
     const [events, setEvents] = useState({});
-    const [selectedDay, setDay] = useState(null);
+    const today = new Date();
+    const todayKey = new Date().toLocaleDateString('sv-SE');
+    const [selectedDay, setDay] = useState({
+        dateKey: todayKey,
+        isValid: true
+    });
+    const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const fetchData = useCallback(async () => {
@@ -66,16 +74,24 @@ export default function HomePage() {
 
             {/* ── Hero ─────────────────────────────────────────────────────────── */}
             <div className="hero anim-fade-in">
-                <h1 className="hero__title hero__title--custom">
-                    HEY KAVI, WELCOME TO RUINS
-                </h1>
+                <div className="hero__grid">
+                    <div className="hero__left">
+                        <h1 className="hero__title hero__title--custom">
+                            HEY KAVI, WELCOME TO RUINS
+                        </h1>
 
-                <p className="hero__sub hero__sub--custom">
-                    THE YEAR {year} - VISUAL AUTOGRAPHY OF ME AND MY JOURNEY
-                </p>
+                        <p className="hero__sub hero__sub--custom">
+                            THE YEAR {year} - VISUAL AUTOGRAPHY OF ME AND MY JOURNEY
+                        </p>
 
-                {/* Year progress — only for current year */}
-                {year === currentYear && <YearProgress year={year} />}
+                        {/* Year progress — only for current year */}
+                        {year === currentYear && <YearProgress year={year} />}
+                    </div>
+
+                    <div className="hero__right">
+                        <GoalSidebar day={selectedDay} />
+                    </div>
+                </div>
             </div>
 
             {/* ── Upcoming ─────────────────────────────────────────────────── */}
@@ -109,28 +125,41 @@ export default function HomePage() {
                                                 reviews={reviews}
                                                 goals={goals}
                                                 events={events}
-                                                onDayClick={setDay}
+                                                onDayClick={(day) => {
+                                                    setDay(day);
+                                                    const todayKey = new Date().toLocaleDateString('sv-SE');
+                                                    if (day.dateKey === todayKey) {
+                                                        const hours = new Date().getHours();
+                                                        if (hours >= 23) {
+                                                            setShowModal(true);
+                                                        } else {
+                                                            toast('Journaling opens at 11:00 PM', { icon: '🌙' });
+                                                            setShowModal(false);
+                                                        }
+                                                    } else {
+                                                        setShowModal(true);
+                                                    }
+                                                }}
                                             />
                                         ))}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="main-layout__sidebar">
-                            <MoodLegend />
-                        </div>
                     </div>
-                    <MoodLegend inline />
                 </>
             )}
 
-            {/* ── Day Modal ────────────────────────────────────────────────────── */}
-            {selectedDay && (
+            {/* ── Day Modal ───────────────── */}
+            {showModal && selectedDay && selectedDay.isValid && !isFuture(selectedDay.dateKey) && (
                 <DayModal
                     day={selectedDay}
                     entry={entries[selectedDay.dateKey]}
-                    onClose={() => setDay(null)}
-                    onSave={fetchData}
+                    onClose={() => setShowModal(false)}
+                    onSave={() => {
+                        fetchData();
+                        setShowModal(false);
+                    }}
                 />
             )}
         </div>

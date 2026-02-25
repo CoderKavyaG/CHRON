@@ -9,24 +9,30 @@ function formatRelative(dateKey) {
     const diff = Math.round((d - today) / 86400000);
     if (diff === 1) return 'Tomorrow';
     if (diff === 0) return 'Today';
-    if (diff <= 6) return `In ${diff} days`;
-    return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+    return `In ${diff} days`;
 }
 
 export default function UpcomingRibbon({ events }) {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
 
     const upcoming = useMemo(() => {
         const flat = [];
         Object.entries(events).forEach(([dateKey, evts]) => {
-            if (dateKey >= today) {
+            const dateObj = new Date(dateKey + 'T00:00:00');
+            // Show events only for current month and year
+            if (dateKey >= todayStr &&
+                dateObj.getMonth() === currentMonth &&
+                dateObj.getFullYear() === currentYear) {
                 evts.forEach(e => flat.push({ ...e, dateKey }));
             }
         });
         return flat
             .sort((a, b) => a.dateKey.localeCompare(b.dateKey))
             .slice(0, 5);
-    }, [events, today]);
+    }, [events, todayStr, currentMonth, currentYear]);
 
     if (upcoming.length === 0) return null;
 
@@ -39,6 +45,9 @@ export default function UpcomingRibbon({ events }) {
                 {upcoming.map((e) => (
                     <div key={e.id} className="upcoming-ribbon__item-box">
                         <span className="upcoming-ribbon__box-title">{e.title}</span>
+                        <span className="upcoming-ribbon__box-relative">
+                            {formatRelative(e.dateKey)}
+                        </span>
                     </div>
                 ))}
                 <div className="upcoming-ribbon__arrow">

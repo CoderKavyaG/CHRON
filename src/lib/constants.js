@@ -60,9 +60,10 @@ export const FULL_MONTHS = [
 ];
 
 export const QUADRIMESTERS = [
-    { name: 'Quadrimester 1', months: [0, 1, 2, 3] },
-    { name: 'Quadrimester 2', months: [4, 5, 6, 7] },
-    { name: 'Quadrimester 3', months: [8, 9, 10, 11] },
+    { name: 'Quadrimester 1', months: [0, 1, 2] },
+    { name: 'Quadrimester 2', months: [3, 4, 5] },
+    { name: 'Quadrimester 3', months: [6, 7, 8] },
+    { name: 'Quadrimester 4', months: [9, 10, 11] },
 ];
 
 export const ReviewCategory = {
