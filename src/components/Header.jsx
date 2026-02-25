@@ -8,7 +8,7 @@ export default function Header() {
     return (
         <header className="site-header">
             <div className="site-header__inner">
-                <Link to="/" className="site-logo">KG</Link>
+                <Link to="/" className="site-logo">KING DIARIES</Link>
                 <div className="site-header__actions">
                     <Link to="/settings" className="icon-btn icon-btn--profile" title="Settings">
                         <div className="profile-circle" />

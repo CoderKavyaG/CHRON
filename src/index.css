@@ -156,11 +156,31 @@ body {
 }
 
 .site-logo {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 900;
   color: var(--text);
   text-decoration: none;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.review-final-display {
+  font-size: 0.875rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  padding: 0.75rem 0.875rem;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: pre-wrap;
+  transition: all 0.2s;
+  margin-top: 0.25rem;
+}
+
+.review-final-display:hover {
+  border-color: var(--border-2);
+  background: var(--surface-2);
 }
 
 .site-header__actions {

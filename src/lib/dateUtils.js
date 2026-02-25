@@ -72,7 +72,7 @@ export function generateMonthDays(year, month) {
 /**
  * Generate a transposed month grid.
  * Returns an array of COLUMNS (weeks), where each column has 7 rows (MON-SUN).
- * This matches the GitHub heatmap / Archivist layout.
+ * This matches the GitHub heatmap / King Diaries layout.
  */
 export function generateMonthGridTransposed(year, month) {
     const daysInMonth = getDaysInMonth(year, month);

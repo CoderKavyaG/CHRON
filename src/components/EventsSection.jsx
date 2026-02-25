@@ -64,9 +64,11 @@ export default function EventsSection({ dateKey }) {
                     <Calendar size={12} style={{ display: 'inline', marginRight: 4 }} />
                     Events & Plans {events.length > 0 && `(${events.length})`}
                 </span>
-                <button className="goals-section__add-btn" onClick={() => setAdding(a => !a)}>
-                    <Plus size={13} /> Add event
-                </button>
+                {dateKey >= new Date().toLocaleDateString('sv-SE') && (
+                    <button className="goals-section__add-btn" onClick={() => setAdding(a => !a)}>
+                        <Plus size={13} /> Add event
+                    </button>
+                )}
             </div>
 
             {/* Event list */}

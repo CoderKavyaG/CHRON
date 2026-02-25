@@ -50,7 +50,7 @@ export default function SettingsPage() {
             const url = URL.createObjectURL(blob);
             const a = Object.assign(document.createElement('a'), {
                 href: url,
-                download: `archivist-${new Date().toISOString().split('T')[0]}.json`,
+                download: `king-diaries-${new Date().toISOString().split('T')[0]}.json`,
             });
             a.click();
             URL.revokeObjectURL(url);
@@ -88,7 +88,7 @@ export default function SettingsPage() {
     return (
         <div className="page-settings anim-fade-in">
             <Link to="/" className="settings-back">
-                <ArrowLeft size={15} /> Back to Journal
+                <ArrowLeft size={15} /> Back to Diaries
             </Link>
 
             <h1 className="settings-h1">Settings</h1>
@@ -159,7 +159,7 @@ export default function SettingsPage() {
 
             {/* About */}
             <div className="settings-card">
-                <h2>About Archivist</h2>
+                <h2>About King Diaries</h2>
                 <p>
                     A visual autobiography of your emotional journey. Every square holds a memory,
                     every color tells a story. Built just for you — your data, your server.

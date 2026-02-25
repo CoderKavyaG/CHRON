@@ -33,11 +33,11 @@ export default function LoginPage() {
         <div className="page-login">
             <div className="login-box">
                 {/* Logo */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
                     <BookOpen size={22} color="var(--cyan)" />
-                    <div className="login-logo">Archivist</div>
+                    <div className="login-logo" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>King Diaries</div>
                 </div>
-                <div className="login-tagline">Your personal emotional archive.</div>
+                <div className="login-tagline">Visual Autography of My Journey.</div>
 
                 {/* Card */}
                 <div className="login-card anim-scale-in">

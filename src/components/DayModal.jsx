@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 export default function DayModal({ day, entry, onClose, onSave, lite = false }) {
     const [mood, setMood] = useState(entry?.legend || null);
     const [reviewInputs, setReviews] = useState({});
+    const [editingReview, setEditingReview] = useState({});
     const [cats, setCats] = useState([]);
     const [showNotes, setShowNotes] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -127,15 +128,31 @@ export default function DayModal({ day, entry, onClose, onSave, lite = false }) 
                             {allCats.map(cat => (
                                 <div key={cat.value} className="review-field">
                                     <label className="review-label">{cat.emoji} {cat.label}</label>
-                                    <textarea
-                                        className="review-textarea"
-                                        placeholder={`Any notes for ${cat.label}?`}
-                                        rows={2}
-                                        value={reviewInputs[cat.value] || ''}
-                                        onChange={e =>
-                                            setReviews(p => ({ ...p, [cat.value]: e.target.value }))
-                                        }
-                                    />
+                                    {reviewInputs[cat.value] && !editingReview?.[cat.value] ? (
+                                        <div
+                                            className="review-final-display"
+                                            onClick={() => setEditingReview(p => ({ ...p, [cat.value]: true }))}
+                                            title="Click to edit"
+                                        >
+                                            {reviewInputs[cat.value]}
+                                        </div>
+                                    ) : (
+                                        <textarea
+                                            className="review-textarea"
+                                            placeholder={`Any notes for ${cat.label}?`}
+                                            rows={2}
+                                            value={reviewInputs[cat.value] || ''}
+                                            autoFocus={editingReview?.[cat.value]}
+                                            onChange={e =>
+                                                setReviews(p => ({ ...p, [cat.value]: e.target.value }))
+                                            }
+                                            onBlur={() => {
+                                                if (reviewInputs[cat.value]?.trim()) {
+                                                    setEditingReview(p => ({ ...p, [cat.value]: false }));
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
