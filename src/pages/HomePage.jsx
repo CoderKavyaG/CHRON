@@ -5,7 +5,6 @@ import * as api from '../lib/api';
 import MonthGrid from '../components/MonthGrid';
 import MoodLegend from '../components/MoodLegend';
 import DayModal from '../components/DayModal';
-import StatsRibbon from '../components/StatsRibbon';
 import UpcomingRibbon from '../components/UpcomingRibbon';
 
 function YearProgress({ year }) {
@@ -79,12 +78,9 @@ export default function HomePage() {
                 {year === currentYear && <YearProgress year={year} />}
             </div>
 
-            {/* ── Stats + Upcoming ─────────────────────────────────────────────── */}
+            {/* ── Upcoming ─────────────────────────────────────────────────── */}
             {!loading && (
-                <>
-                    <StatsRibbon entries={entries} />
-                    <UpcomingRibbon events={events} />
-                </>
+                <UpcomingRibbon events={events} />
             )}
 
             {/* ── Calendar ─────────────────────────────────────────────────────── */}

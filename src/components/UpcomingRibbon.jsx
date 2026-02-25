@@ -33,23 +33,17 @@ export default function UpcomingRibbon({ events }) {
     return (
         <div className="upcoming-ribbon anim-fade-in">
             <div className="upcoming-ribbon__label">
-                <Calendar size={12} />
-                Upcoming
+                UPCOMING EVENTS FOR MONTH :
             </div>
             <div className="upcoming-ribbon__list">
-                {upcoming.map((e, i) => (
-                    <div key={e.id} className="upcoming-ribbon__item">
-                        <span
-                            className="upcoming-ribbon__dot"
-                            style={{ background: e.color || 'var(--cyan)' }}
-                        />
-                        <span className="upcoming-ribbon__title">{e.title}</span>
-                        <span className="upcoming-ribbon__date">{formatRelative(e.dateKey)}</span>
-                        {i < upcoming.length - 1 && (
-                            <ChevronRight size={10} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
-                        )}
+                {upcoming.map((e) => (
+                    <div key={e.id} className="upcoming-ribbon__item-box">
+                        <span className="upcoming-ribbon__box-title">{e.title}</span>
                     </div>
                 ))}
+                <div className="upcoming-ribbon__arrow">
+                    <div className="nav-arrow-right" />
+                </div>
             </div>
         </div>
     );
