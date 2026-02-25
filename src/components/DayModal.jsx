@@ -115,36 +115,52 @@ export default function DayModal({ day, entry, onClose, onSave, lite = false }) 
                     </>
                 )}
 
-                {/* ── NOTES SECTION ─────────────────────────────────────────────── */}
-                <div className="modal-section-label">Notes & Reflections</div>
-                <div className="modal-reviews" style={{ paddingBottom: '0.5rem', maxHeight: '300px', overflowY: 'auto' }}>
-                    {allCats.map(cat => (
-                        <div key={cat.value} className="review-field">
-                            <label className="review-label">{cat.emoji} {cat.label}</label>
-                            <textarea
-                                className="review-textarea"
-                                placeholder={`Any notes for ${cat.label}?`}
-                                rows={2}
-                                value={reviewInputs[cat.value] || ''}
-                                onChange={e =>
-                                    setReviews(p => ({ ...p, [cat.value]: e.target.value }))
-                                }
-                            />
+                {/* ── EVENTS SECTION (Always show) ─────────────────────────────── */}
+                <div className="modal-section-label">Events & Plans</div>
+                <EventsSection dateKey={day.dateKey} />
+
+                {/* ── NOTES SECTION (Only past/today) ───────────────────────────── */}
+                {!future && (
+                    <>
+                        <div className="modal-section-label">Notes & Reflections</div>
+                        <div className="modal-reviews" style={{ paddingBottom: '0.5rem', maxHeight: '240px', overflowY: 'auto' }}>
+                            {allCats.map(cat => (
+                                <div key={cat.value} className="review-field">
+                                    <label className="review-label">{cat.emoji} {cat.label}</label>
+                                    <textarea
+                                        className="review-textarea"
+                                        placeholder={`Any notes for ${cat.label}?`}
+                                        rows={2}
+                                        value={reviewInputs[cat.value] || ''}
+                                        onChange={e =>
+                                            setReviews(p => ({ ...p, [cat.value]: e.target.value }))
+                                        }
+                                    />
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </>
+                )}
 
                 {/* ── ACTIONS ───────────────────────────────────────────────────── */}
                 <div className="modal-actions">
-                    <button className="btn-save" onClick={handleSave} disabled={saving}>
-                        <Save size={14} /> {saving ? 'Saving…' : 'Save Entry'}
-                    </button>
-                    {entry && (
-                        <button className="btn-delete" onClick={handleDelete} title="Delete entry">
-                            <Trash2 size={14} />
+                    {!future ? (
+                        <>
+                            <button className="btn-save" onClick={handleSave} disabled={saving}>
+                                <Save size={14} /> {saving ? 'Saving…' : 'Save Entry'}
+                            </button>
+                            {entry && (
+                                <button className="btn-delete" onClick={handleDelete} title="Delete entry">
+                                    <Trash2 size={14} />
+                                </button>
+                            )}
+                            <button className="btn-cancel" onClick={onClose}>Cancel</button>
+                        </>
+                    ) : (
+                        <button className="btn-cancel" style={{ width: '100%' }} onClick={onClose}>
+                            Done
                         </button>
                     )}
-                    <button className="btn-cancel" onClick={onClose}>Cancel</button>
                 </div>
             </div>
         </div>

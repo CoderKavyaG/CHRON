@@ -137,6 +137,7 @@ export default function HomePage() {
                                                             setShowModal(false);
                                                         }
                                                     } else {
+                                                        // Past or Future
                                                         setShowModal(true);
                                                     }
                                                 }}
@@ -151,7 +152,7 @@ export default function HomePage() {
             )}
 
             {/* ── Day Modal ───────────────── */}
-            {showModal && selectedDay && selectedDay.isValid && !isFuture(selectedDay.dateKey) && (
+            {showModal && selectedDay && selectedDay.isValid && (
                 <DayModal
                     day={selectedDay}
                     entry={entries[selectedDay.dateKey]}
