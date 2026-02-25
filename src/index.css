@@ -1,10 +1,10 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* ============================================
-   CSS VARIABLES (the source of truth)
-============================================ */
 :root {
+  --font-serif: "EB Garamond", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
   --bg: #0D0D0F;
   --surface: #161618;
   --surface-2: #1E1E22;
@@ -27,9 +27,6 @@
   --no-entry: #2A2B2F;
 }
 
-/* ============================================
-   RESET & BASE
-============================================ */
 *,
 *::before,
 *::after {
@@ -44,14 +41,26 @@ html {
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-serif);
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
   line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+.site-logo,
+.quad-title,
+.month-label,
+.cal-wd-label,
+.btn-login,
+.login-logo {
+  font-family: var(--font-sans);
 }
 
 #root {
@@ -151,7 +160,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 0 1.5rem;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -243,7 +252,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   font-size: 0.8125rem;
   color: var(--text-3);
@@ -253,7 +262,7 @@ body {
    HOME PAGE
 ============================================ */
 .page-home {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 2rem 4rem;
 }
@@ -290,8 +299,122 @@ body {
   }
 }
 
+/* ── Quote Section ────────────────────────────────────────── */
+.quote-box {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-top: 2rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.quote-box__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.15;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.quote-box__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.quote-box__text {
+  font-size: 1.75rem;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.quote-box__sub {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Progress & Navigation ────────────────────────────────── */
+.year-progress-full {
+  width: 100%;
+  height: 2px;
+  background: var(--surface-3);
+  margin: 3rem 0;
+  position: relative;
+}
+
+.year-progress-full__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  position: relative;
+}
+
+.year-progress-full__label {
+  position: absolute;
+  top: -1.25rem;
+  left: 0;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timeline-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  margin-top: -1rem;
+}
+
+.timeline-nav__label {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--text);
+}
+
+.timeline-nav__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--text) 0%, transparent 100%);
+  position: relative;
+}
+
+.timeline-nav__line::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid var(--text);
+  border-right: 1.5px solid var(--text);
+  transform: translateY(-50%) rotate(45deg);
+}
+
 .hero__title--custom {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: 3rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-top: 0.5rem;
@@ -300,12 +423,13 @@ body {
 }
 
 .hero__sub--custom {
+  font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-3);
-  margin-bottom: 2rem;
+  margin-top: 0.5rem;
 }
 
 /* Goal Sidebar */
@@ -334,23 +458,28 @@ body {
 .goal-sidebar__header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  padding: 1rem 1.25rem;
+  align-items: center;
+  padding: 1.5rem 1.25rem;
   border-bottom: 1.5px solid var(--border-2);
 }
 
 .goal-sidebar__date {
-  font-size: 1.5rem;
-  font-weight: 900;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 800;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .goal-sidebar__day {
-  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
   font-weight: 800;
-  color: var(--text-3);
+  color: var(--text);
   letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.5;
 }
 
 .goal-sidebar__content {

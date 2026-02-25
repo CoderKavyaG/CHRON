@@ -14,19 +14,12 @@ function YearProgress({ year }) {
     const start = new Date(year, 0, 1);
     const end = new Date(year + 1, 0, 1);
     const pct = Math.round(((now - start) / (end - start)) * 100);
-    // Day-of-year
-    const dayOfYear = Math.floor((now - start) / 86400000) + 1;
-    // Days in this year
-    const daysInYear = new Date(year, 1, 29).getMonth() === 1 ? 366 : 365;
 
     return (
-        <div className="year-progress">
-            <div className="year-progress__bar">
-                <div className="year-progress__fill" style={{ width: `${pct}%` }} />
+        <div className="year-progress-full">
+            <div className="year-progress-full__fill" style={{ width: `${pct}%` }}>
+                <span className="year-progress-full__label">{pct}% OF {year} COMPLETED</span>
             </div>
-            <span className="year-progress__label">
-                {pct}% of {year} completed
-            </span>
         </div>
     );
 }
@@ -74,7 +67,7 @@ export default function HomePage() {
 
             {/* ── Hero ─────────────────────────────────────────────────────────── */}
             <div className="hero anim-fade-in">
-                <div className="hero__grid">
+                <div className="hero__grid" style={{ marginBottom: '2rem' }}>
                     <div className="hero__left">
                         <h1 className="hero__title hero__title--custom">
                             HEY KAVI, WELCOME TO RUINS
@@ -84,14 +77,21 @@ export default function HomePage() {
                             THE YEAR {year} - VISUAL AUTOGRAPHY OF ME AND MY JOURNEY
                         </p>
 
-                        {/* Year progress — only for current year */}
-                        {year === currentYear && <YearProgress year={year} />}
+                        <div className="quote-box">
+                            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGI2YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjYvZW5waGlidS9naWZfMjAwX3MuaWYo/iIqcyCdJMuepI0v62K/giphy.gif" className="quote-box__bg" alt="" />
+                            <div className="quote-box__content">
+                                <p className="quote-box__text">"Every moment is a fresh beginning."</p>
+                                <span className="quote-box__sub">QUOTE OF THE DAY · VISUAL AUTOGRAPHY</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="hero__right">
                         <GoalSidebar day={selectedDay} allEvents={events} />
                     </div>
                 </div>
+
+                {year === currentYear && <YearProgress year={year} />}
             </div>
 
             {/* ── Calendar ─────────────────────────────────────────────────────── */}
@@ -109,7 +109,11 @@ export default function HomePage() {
                                     className="quad-section anim-slide-up"
                                     style={{ animationDelay: `${qi * 80}ms` }}
                                 >
-                                    <div className="quad-title">{quad.name}</div>
+                                    <div className="timeline-nav">
+                                        <span className="timeline-nav__label">{quad.name.toUpperCase()}</span>
+                                        <div className="timeline-nav__line" />
+                                    </div>
+
                                     <div className="months-grid">
                                         {quad.months.map(mi => (
                                             <MonthGrid

@@ -86,7 +86,9 @@ export default function GoalSidebar({ day, allEvents = {} }) {
 
     // Format date and day name
     const dateObj = new Date(dateKey + 'T00:00:00');
-    const dateStr = dateObj.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+    const MM = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const DD = String(dateObj.getDate()).padStart(2, '0');
+    const dateStr = `${MM}/${DD}`;
     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
 
     // Correct comparison for 'Today'
