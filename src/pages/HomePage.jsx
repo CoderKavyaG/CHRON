@@ -98,7 +98,8 @@ export default function HomePage() {
         fetchGif();
     }, [fetchData, fetchGif]);
 
-    const currentYear = new Date().getFullYear();
+    const { user } = useAuth();
+    const userName = (user?.displayName || 'Adventurer').toUpperCase();
 
     return (
         <div className="page-home">
@@ -108,7 +109,7 @@ export default function HomePage() {
                 <div className="hero__grid" style={{ marginBottom: '2rem' }}>
                     <div className="hero__left">
                         <h1 className="hero__title hero__title--custom">
-                            HEY KAVI, WELCOME TO RUINS
+                            HEY {userName}, WELCOME TO RUINS
                         </h1>
 
                         <p className="hero__sub hero__sub--custom">

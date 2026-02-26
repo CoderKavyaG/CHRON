@@ -1,17 +1,24 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import { isAuthenticated, logout as apiLogout } from '../lib/api';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const AuthCtx = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [authed, setAuthed] = useState(isAuthenticated);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const login = useCallback(() => setAuthed(true), []);
-    const logout = useCallback(() => { apiLogout(); setAuthed(false); }, []);
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (u) => {
+            setUser(u);
+            setLoading(false);
+        });
+        return unsubscribe;
+    }, []);
 
     return (
-        <AuthCtx.Provider value={{ authed, login, logout }}>
-            {children}
+        <AuthCtx.Provider value={{ user, authed: !!user, loading }}>
+            {!loading && children}
         </AuthCtx.Provider>
     );
 }
