@@ -1,43 +1,28 @@
-// Frontend API service — talks to the Express backend
-
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3009';
+import { db } from './firebase';
+import {
+    collection,
+    getDocs,
+    doc,
+    setDoc,
+    deleteDoc,
+    getDoc,
+    updateDoc,
+    query,
+    where
+} from 'firebase/firestore';
 
 function getToken() {
     return localStorage.getItem('archivist_token');
 }
 
-async function req(method, path, body) {
-    const res = await fetch(`${BASE}${path}`, {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getToken()}`,
-        },
-        body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (res.status === 401) {
-        localStorage.removeItem('archivist_token');
-        window.location.href = '/login';
-        return null;
-    }
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
-    return data;
-}
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// ── Auth Logic (Simplified for Hosting) ───────────────────────────────────
 export async function login(password) {
-    const data = await fetch(`${BASE}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-    });
-    const json = await data.json();
-    if (!data.ok) throw new Error(json.error || 'Login failed');
-    localStorage.setItem('archivist_token', json.token);
-    return json.token;
+    if (password === 'your_secret_password') { // You can improve this later
+        const token = 'authorized';
+        localStorage.setItem('archivist_token', token);
+        return token;
+    }
+    throw new Error('Wrong password');
 }
 
 export function logout() {
@@ -45,50 +30,132 @@ export function logout() {
 }
 
 export function isAuthenticated() {
-    const token = getToken();
-    if (!token) return false;
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.exp * 1000 > Date.now();
-    } catch {
-        return false;
-    }
+    return !!getToken();
 }
 
 // ── Days ──────────────────────────────────────────────────────────────────────
-export const getDays = () => req('GET', '/api/days');
-export const saveDay = (dateKey, legend) => req('POST', '/api/days', { dateKey, legend });
-export const deleteDay = (dateKey) => req('DELETE', `/api/days/${dateKey}`);
+export const getDays = async () => {
+    const snap = await getDocs(collection(db, 'days'));
+    const data = {};
+    snap.forEach(d => { data[d.id] = d.data(); });
+    return data;
+};
+
+export const saveDay = async (dateKey, legend) => {
+    const dayRef = doc(db, 'days', dateKey);
+    const dayData = {
+        id: dateKey, date: dateKey, legend,
+        updatedAt: new Date().toISOString(),
+    };
+    await setDoc(dayRef, dayData, { merge: true });
+    return dayData;
+};
+
+export const deleteDay = async (dateKey) => {
+    await deleteDoc(doc(db, 'days', dateKey));
+};
 
 // ── Reviews ───────────────────────────────────────────────────────────────────
-export const getReviews = () => req('GET', '/api/reviews');
-export const getReviewsDay = (dateKey) => req('GET', `/api/reviews/${dateKey}`);
-export const saveReview = (dateKey, category, content) => req('POST', '/api/reviews', { dateKey, category, content });
-export const deleteReview = (dateKey, category) => req('DELETE', `/api/reviews/${dateKey}/${category}`);
+export const getReviews = async () => {
+    const snap = await getDocs(collection(db, 'reviews'));
+    const data = {};
+    snap.forEach(d => { data[d.id] = d.data(); });
+    return data;
+};
+
+export const saveReview = async (dateKey, category, content) => {
+    const id = `${dateKey}-${category}`;
+    const reviewRef = doc(db, 'reviews', id);
+    const review = {
+        id, dayEntryId: dateKey, category, content,
+        updatedAt: new Date().toISOString(),
+    };
+    await setDoc(reviewRef, review);
+    return review;
+};
+
+export const deleteReview = async (dateKey, category) => {
+    await deleteDoc(doc(db, 'reviews', `${dateKey}-${category}`));
+};
 
 // ── Categories ────────────────────────────────────────────────────────────────
-export const getCategories = () => req('GET', '/api/categories');
-export const addCategory = (name) => req('POST', '/api/categories', { name });
-export const removeCategory = (id) => req('DELETE', `/api/categories/${id}`);
+export const getCategories = async () => {
+    const snap = await getDocs(collection(db, 'categories'));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+export const addCategory = async (name) => {
+    const id = `cat-${Date.now()}`;
+    const data = { name, order: 0, createdAt: new Date().toISOString() };
+    await setDoc(doc(db, 'categories', id), data);
+    return { id, ...data };
+};
+
+export const removeCategory = async (id) => {
+    await deleteDoc(doc(db, 'categories', id));
+};
 
 // ── Settings ──────────────────────────────────────────────────────────────────
-export const getSettings = () => req('GET', '/api/settings');
-export const saveSettings = (data) => req('PUT', '/api/settings', data);
+export const getSettings = async () => {
+    const snap = await getDoc(doc(db, 'settings', 'global'));
+    return snap.exists() ? snap.data() : { name: 'Kavya' };
+};
 
-// ── Export / Import ───────────────────────────────────────────────────────────
-export const exportData = () => req('GET', '/api/export');
-export const importData = (data) => req('POST', '/api/import', data);
+export const saveSettings = async (data) => {
+    await setDoc(doc(db, 'settings', 'global'), data, { merge: true });
+    return data;
+};
 
 // ── Goals ─────────────────────────────────────────────────────────────────────
-export const getAllGoals = () => req('GET', '/api/goals');
-export const getGoalsDay = (dateKey) => req('GET', `/api/goals/${dateKey}`);
-export const addGoal = (dateKey, title) => req('POST', '/api/goals', { dateKey, title });
-export const updateGoal = (id, updates) => req('PUT', `/api/goals/${id}`, updates);
-export const deleteGoal = (id) => req('DELETE', `/api/goals/${id}`);
+export const getAllGoals = async () => {
+    const snap = await getDocs(collection(db, 'goals'));
+    const data = {};
+    snap.forEach(d => {
+        const goal = { id: d.id, ...d.data() };
+        if (!data[goal.dateKey]) data[goal.dateKey] = [];
+        data[goal.dateKey].push(goal);
+    });
+    return data;
+};
+
+export const addGoal = async (dateKey, title) => {
+    const id = `goal-${dateKey}-${Date.now()}`;
+    const goal = { dateKey, title, completed: false, createdAt: new Date().toISOString() };
+    await setDoc(doc(db, 'goals', id), goal);
+    return { id, ...goal };
+};
+
+export const updateGoal = async (id, updates) => {
+    await updateDoc(doc(db, 'goals', id), { ...updates, updatedAt: new Date().toISOString() });
+};
+
+export const deleteGoal = async (id) => {
+    await deleteDoc(doc(db, 'goals', id));
+};
 
 // ── Events ────────────────────────────────────────────────────────────────────
-export const getAllEvents = () => req('GET', '/api/events');
-export const getEventsDay = (dateKey) => req('GET', `/api/events/${dateKey}`);
-export const addEvent = (dateKey, title, desc, color) => req('POST', '/api/events', { dateKey, title, description: desc, color });
-export const updateEvent = (id, updates) => req('PUT', `/api/events/${id}`, updates);
-export const deleteEvent = (id) => req('DELETE', `/api/events/${id}`);
+export const getAllEvents = async () => {
+    const snap = await getDocs(collection(db, 'events'));
+    const data = {};
+    snap.forEach(d => {
+        const evt = { id: d.id, ...d.data() };
+        if (!data[evt.dateKey]) data[evt.dateKey] = [];
+        data[evt.dateKey].push(evt);
+    });
+    return data;
+};
+
+export const addEvent = async (dateKey, title, desc, color) => {
+    const id = `evt-${dateKey}-${Date.now()}`;
+    const evt = { dateKey, title, description: desc, color, createdAt: new Date().toISOString() };
+    await setDoc(doc(db, 'events', id), evt);
+    return { id, ...evt };
+};
+
+export const updateEvent = async (id, updates) => {
+    await updateDoc(doc(db, 'events', id), { ...updates, updatedAt: new Date().toISOString() });
+};
+
+export const deleteEvent = async (id) => {
+    await deleteDoc(doc(db, 'events', id));
+};
