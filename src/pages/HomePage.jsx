@@ -1,13 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { QUADRIMESTERS } from '../lib/constants';
 import * as api from '../lib/api';
 import toast from 'react-hot-toast';
 import MonthGrid from '../components/MonthGrid';
 import DayModal from '../components/DayModal';
-import UpcomingRibbon from '../components/UpcomingRibbon';
 import GoalSidebar from '../components/GoalSidebar';
-import { formatDateKey, isFuture } from '../lib/dateUtils';
+import { useAuth } from '../contexts/AuthContext';
 
 function YearProgress({ year }) {
     const now = new Date();
@@ -30,7 +28,6 @@ export default function HomePage() {
     const [reviews, setReviews] = useState({});
     const [goals, setGoals] = useState({});
     const [events, setEvents] = useState({});
-    const today = new Date();
     const todayKey = new Date().toLocaleDateString('sv-SE');
     const [selectedDay, setDay] = useState({
         dateKey: todayKey,
@@ -44,11 +41,9 @@ export default function HomePage() {
         const CACHE_KEY = 'motivation_gif_url';
         const DATE_KEY = 'motivation_gif_date';
         const todayStr = new Date().toDateString();
-
         const cachedUrl = localStorage.getItem(CACHE_KEY);
         const cachedDate = localStorage.getItem(DATE_KEY);
 
-        // If we have a cached GIF from today, use it
         if (cachedUrl && cachedDate === todayStr) {
             setGifUrl(cachedUrl);
             return;
@@ -65,7 +60,6 @@ export default function HomePage() {
                 localStorage.setItem(CACHE_KEY, newUrl);
                 localStorage.setItem(DATE_KEY, todayStr);
             } else if (cachedUrl) {
-                // If API fails but we have a cached one (even from a previous day), use it
                 setGifUrl(cachedUrl);
             }
         } catch (err) {
@@ -100,11 +94,10 @@ export default function HomePage() {
 
     const { user } = useAuth();
     const userName = (user?.displayName || 'Adventurer').toUpperCase();
+    const currentYear = new Date().getFullYear();
 
     return (
         <div className="page-home">
-
-            {/* ── Hero ─────────────────────────────────────────────────────────── */}
             <div className="hero anim-fade-in">
                 <div className="hero__grid" style={{ marginBottom: '2rem' }}>
                     <div className="hero__left">
@@ -133,63 +126,58 @@ export default function HomePage() {
                 {year === currentYear && <YearProgress year={year} />}
             </div>
 
-            {/* ── Calendar ─────────────────────────────────────────────────────── */}
             {loading ? (
                 <div style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--text-3)', fontSize: '0.9rem' }}>
                     Loading your journal…
                 </div>
             ) : (
-                <>
-                    <div className="main-layout">
-                        <div className="main-layout__calendar">
-                            {QUADRIMESTERS.map((quad, qi) => (
-                                <div
-                                    key={quad.name}
-                                    className="quad-section anim-slide-up"
-                                    style={{ animationDelay: `${qi * 80}ms` }}
-                                >
-                                    <div className="timeline-nav">
-                                        <span className="timeline-nav__label">{quad.name.toUpperCase()}</span>
-                                        <div className="timeline-nav__line" />
-                                    </div>
-
-                                    <div className="months-grid">
-                                        {quad.months.map(mi => (
-                                            <MonthGrid
-                                                key={mi}
-                                                year={year}
-                                                monthIndex={mi}
-                                                entries={entries}
-                                                reviews={reviews}
-                                                goals={goals}
-                                                events={events}
-                                                onDayClick={(day) => {
-                                                    setDay(day);
-                                                    const todayKey = new Date().toLocaleDateString('sv-SE');
-                                                    if (day.dateKey === todayKey) {
-                                                        const hours = new Date().getHours();
-                                                        if (hours >= 23) {
-                                                            setShowModal(true);
-                                                        } else {
-                                                            toast('Journaling opens at 11:00 PM', { icon: '🌙' });
-                                                            setShowModal(false);
-                                                        }
-                                                    } else {
-                                                        // Past or Future
-                                                        setShowModal(true);
-                                                    }
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
+                <div className="main-layout">
+                    <div className="main-layout__calendar">
+                        {QUADRIMESTERS.map((quad, qi) => (
+                            <div
+                                key={quad.name}
+                                className="quad-section anim-slide-up"
+                                style={{ animationDelay: `${qi * 80}ms` }}
+                            >
+                                <div className="timeline-nav">
+                                    <span className="timeline-nav__label">{quad.name.toUpperCase()}</span>
+                                    <div className="timeline-nav__line" />
                                 </div>
-                            ))}
-                        </div>
+
+                                <div className="months-grid">
+                                    {quad.months.map(mi => (
+                                        <MonthGrid
+                                            key={mi}
+                                            year={year}
+                                            monthIndex={mi}
+                                            entries={entries}
+                                            reviews={reviews}
+                                            goals={goals}
+                                            events={events}
+                                            onDayClick={(day) => {
+                                                setDay(day);
+                                                const todayKeyStr = new Date().toLocaleDateString('sv-SE');
+                                                if (day.dateKey === todayKeyStr) {
+                                                    const hours = new Date().getHours();
+                                                    if (hours >= 23) {
+                                                        setShowModal(true);
+                                                    } else {
+                                                        toast('Journaling opens at 11:00 PM', { icon: '🌙' });
+                                                        setShowModal(false);
+                                                    }
+                                                } else {
+                                                    setShowModal(true);
+                                                }
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </>
+                </div>
             )}
 
-            {/* ── Day Modal ───────────────── */}
             {showModal && selectedDay && selectedDay.isValid && (
                 <DayModal
                     day={selectedDay}
