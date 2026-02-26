@@ -38,6 +38,41 @@ export default function HomePage() {
     });
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [gifUrl, setGifUrl] = useState('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGI2YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjYvZW5waGlidS9naWZfMjAwX3MuaWYo/iIqcyCdJMuepI0v62K/giphy.gif');
+
+    const fetchGif = useCallback(async () => {
+        const CACHE_KEY = 'motivation_gif_url';
+        const DATE_KEY = 'motivation_gif_date';
+        const todayStr = new Date().toDateString();
+
+        const cachedUrl = localStorage.getItem(CACHE_KEY);
+        const cachedDate = localStorage.getItem(DATE_KEY);
+
+        // If we have a cached GIF from today, use it
+        if (cachedUrl && cachedDate === todayStr) {
+            setGifUrl(cachedUrl);
+            return;
+        }
+
+        try {
+            const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
+            const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=motivation&rating=g`);
+            const data = await response.json();
+
+            if (data.data?.images?.original?.url) {
+                const newUrl = data.data.images.original.url;
+                setGifUrl(newUrl);
+                localStorage.setItem(CACHE_KEY, newUrl);
+                localStorage.setItem(DATE_KEY, todayStr);
+            } else if (cachedUrl) {
+                // If API fails but we have a cached one (even from a previous day), use it
+                setGifUrl(cachedUrl);
+            }
+        } catch (err) {
+            console.error('Giphy API fetch failed', err);
+            if (cachedUrl) setGifUrl(cachedUrl);
+        }
+    }, []);
 
     const fetchData = useCallback(async () => {
         try {
@@ -58,7 +93,10 @@ export default function HomePage() {
         }
     }, []);
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    useEffect(() => {
+        fetchData();
+        fetchGif();
+    }, [fetchData, fetchGif]);
 
     const currentYear = new Date().getFullYear();
 
@@ -78,7 +116,7 @@ export default function HomePage() {
                         </p>
 
                         <div className="quote-box">
-                            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGI2YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjYvZW5waGlidS9naWZfMjAwX3MuaWYo/iIqcyCdJMuepI0v62K/giphy.gif" className="quote-box__bg" alt="" />
+                            {gifUrl && <img src={gifUrl} className="quote-box__bg" alt="" />}
                             <div className="quote-box__content">
                                 <p className="quote-box__text">"Every moment is a fresh beginning."</p>
                                 <span className="quote-box__sub">QUOTE OF THE DAY · VISUAL AUTOGRAPHY</span>
