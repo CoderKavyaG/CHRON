@@ -7,6 +7,9 @@ import {
     deleteDoc,
     getDoc,
     updateDoc,
+    query,
+    where,
+    writeBatch
 } from 'firebase/firestore';
 import {
     createUserWithEmailAndPassword,
@@ -74,6 +77,12 @@ export const getReviews = async () => {
     return data;
 };
 
+export const getReviewsDay = async (dateKey) => {
+    const q = query(getUserCol('reviews'), where('dayEntryId', '==', dateKey));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
 export const saveReview = async (dateKey, category, content) => {
     const id = `${dateKey}-${category}`;
     const reviewRef = getUserDoc('reviews', id);
@@ -129,6 +138,12 @@ export const getAllGoals = async () => {
     return data;
 };
 
+export const getGoalsDay = async (dateKey) => {
+    const q = query(getUserCol('goals'), where('dateKey', '==', dateKey));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
 export const addGoal = async (dateKey, title) => {
     const id = `goal-${dateKey}-${Date.now()}`;
     const goal = { dateKey, title, completed: false, createdAt: new Date().toISOString() };
@@ -137,7 +152,10 @@ export const addGoal = async (dateKey, title) => {
 };
 
 export const updateGoal = async (id, updates) => {
-    await updateDoc(getUserDoc('goals', id), { ...updates, updatedAt: new Date().toISOString() });
+    const goalRef = getUserDoc('goals', id);
+    await updateDoc(goalRef, { ...updates, updatedAt: new Date().toISOString() });
+    const snap = await getDoc(goalRef);
+    return { id: snap.id, ...snap.data() };
 };
 
 export const deleteGoal = async (id) => {
@@ -156,6 +174,12 @@ export const getAllEvents = async () => {
     return data;
 };
 
+export const getEventsDay = async (dateKey) => {
+    const q = query(getUserCol('events'), where('dateKey', '==', dateKey));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
 export const addEvent = async (dateKey, title, desc, color) => {
     const id = `evt-${dateKey}-${Date.now()}`;
     const evt = { dateKey, title, description: desc, color, createdAt: new Date().toISOString() };
@@ -164,9 +188,81 @@ export const addEvent = async (dateKey, title, desc, color) => {
 };
 
 export const updateEvent = async (id, updates) => {
-    await updateDoc(getUserDoc('events', id), { ...updates, updatedAt: new Date().toISOString() });
+    const evtRef = getUserDoc('events', id);
+    await updateDoc(evtRef, { ...updates, updatedAt: new Date().toISOString() });
+    const snap = await getDoc(evtRef);
+    return { id: snap.id, ...snap.data() };
 };
 
 export const deleteEvent = async (id) => {
     await deleteDoc(getUserDoc('events', id));
+};
+
+// ── Data Management (Backup/Restore) ──────────────────────────────────────────
+export const exportData = async () => {
+    const [days, reviews, categories, settings, goals, events] = await Promise.all([
+        getDays(),
+        getReviews(),
+        getCategories(),
+        getSettings(),
+        getAllGoals(),
+        getAllEvents(),
+    ]);
+
+    return {
+        entries: days,
+        reviews,
+        categories,
+        settings,
+        goals,
+        events,
+        version: '1.0.0',
+        exportedAt: new Date().toISOString()
+    };
+};
+
+export const importData = async (data) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) throw new Error('User not authenticated');
+
+    const batch = writeBatch(db);
+
+    // This is a complex operation in Firestore. For simplicity, we'll just set each document.
+    // Note: Firestore batches have a limit of 500 operations.
+
+    // Days
+    Object.entries(data.entries || {}).forEach(([id, d]) => {
+        batch.set(doc(db, 'users', uid, 'days', id), d);
+    });
+
+    // Reviews
+    Object.entries(data.reviews || {}).forEach(([id, r]) => {
+        batch.set(doc(db, 'users', uid, 'reviews', id), r);
+    });
+
+    // Goals (Flat mapping)
+    Object.entries(data.goals || {}).forEach(([dk, goals]) => {
+        goals.forEach(g => {
+            batch.set(doc(db, 'users', uid, 'goals', g.id), g);
+        });
+    });
+
+    // Events (Flat mapping)
+    Object.entries(data.events || {}).forEach(([dk, evts]) => {
+        evts.forEach(e => {
+            batch.set(doc(db, 'users', uid, 'events', e.id), e);
+        });
+    });
+
+    // Categories
+    (data.categories || []).forEach(c => {
+        batch.set(doc(db, 'users', uid, 'categories', c.id), c);
+    });
+
+    // Settings
+    if (data.settings) {
+        batch.set(doc(db, 'users', uid, 'settings', 'global'), data.settings);
+    }
+
+    await batch.commit();
 };

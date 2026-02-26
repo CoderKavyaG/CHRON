@@ -68,7 +68,12 @@ export default function HomePage() {
         }
     }, []);
 
+    const { user, loading: authLoading } = useAuth();
+    const userName = (user?.displayName || 'Adventurer').toUpperCase();
+    const currentYear = new Date().getFullYear();
+
     const fetchData = useCallback(async () => {
+        if (!user) return; // Wait for user to be available
         try {
             const [e, r, g, ev] = await Promise.all([
                 api.getDays(),
@@ -85,16 +90,14 @@ export default function HomePage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        fetchData();
-        fetchGif();
-    }, [fetchData, fetchGif]);
-
-    const { user } = useAuth();
-    const userName = (user?.displayName || 'Adventurer').toUpperCase();
-    const currentYear = new Date().getFullYear();
+        if (user) {
+            fetchData();
+            fetchGif();
+        }
+    }, [user, fetchData, fetchGif]);
 
     return (
         <div className="page-home">
