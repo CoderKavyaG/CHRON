@@ -178,14 +178,14 @@ export default function GoalSidebar({ day, allEvents = {} }) {
                     )}
                 </div>
 
-                {/* Upcoming section inside sidebar */}
-                {upcomingEvents.length > 0 && (
-                    <div className="goal-sidebar__section goal-sidebar__section--upcoming">
-                        <h3 className="goal-sidebar__title">UPCOMING THIS MONTH :</h3>
+                {/* Events section - always visible */}
+                <div className="goal-sidebar__section goal-sidebar__section--upcoming">
+                    <h3 className="goal-sidebar__title">UPCOMING EVENTS :</h3>
+                    {upcomingEvents.length > 0 ? (
                         <div className="goal-sidebar__upcoming-list">
                             {upcomingEvents.map(evt => (
                                 <div key={evt.id} className="goal-sidebar__upcoming-item">
-                                    <div className="goal-sidebar__upcoming-dot" style={{ backgroundColor: evt.color || 'var(--cyan)' }} />
+                                    <div className="goal-sidebar__upcoming-dot" style={{ backgroundColor: evt.color || 'var(--accent)' }} />
                                     <div className="goal-sidebar__upcoming-info">
                                         <span className="goal-sidebar__upcoming-title">{evt.title}</span>
                                         <span className="goal-sidebar__upcoming-date">
@@ -195,8 +195,12 @@ export default function GoalSidebar({ day, allEvents = {} }) {
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <p style={{ fontSize: '0.8125rem', color: 'var(--text-3)', textAlign: 'center', margin: '0.5rem 0', fontFamily: 'var(--font-body)', fontStyle: 'italic' }}>
+                            No upcoming events. Click a future date to add one.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );

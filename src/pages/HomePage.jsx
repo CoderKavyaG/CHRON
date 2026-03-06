@@ -51,7 +51,7 @@ export default function HomePage() {
 
         try {
             const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
-            const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=motivation&rating=g`);
+            const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=sunset+landscape&rating=g`);
             const data = await response.json();
 
             if (data.data?.images?.original?.url) {
@@ -105,19 +105,15 @@ export default function HomePage() {
                 <div className="hero__grid" style={{ marginBottom: '2rem' }}>
                     <div className="hero__left">
                         <h1 className="hero__title hero__title--custom">
-                            HEY {userName}, WELCOME TO RUINS
+                            {userName}'S CHRONICLE
                         </h1>
 
                         <p className="hero__sub hero__sub--custom">
-                            THE YEAR {year} - VISUAL AUTOGRAPHY OF ME AND MY JOURNEY
+                            The year {year} — a visual autobiography of your journey, one day at a time.
                         </p>
 
                         <div className="quote-box">
                             {gifUrl && <img src={gifUrl} className="quote-box__bg" alt="" />}
-                            <div className="quote-box__content">
-                                <p className="quote-box__text">"Every moment is a fresh beginning."</p>
-                                <span className="quote-box__sub">QUOTE OF THE DAY · VISUAL AUTOGRAPHY</span>
-                            </div>
                         </div>
                     </div>
 

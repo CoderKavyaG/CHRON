@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
 import { login as apiLogin, signUp as apiSignUp } from '../lib/api';
 import toast from 'react-hot-toast';
 
@@ -41,10 +40,9 @@ export default function LoginPage() {
             <div className="login-box">
                 {/* Logo */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
-                    <BookOpen size={22} color="var(--cyan)" />
-                    <div className="login-logo" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>King Diaries</div>
+                    <div className="login-logo" style={{ textTransform: 'uppercase', letterSpacing: '0.15em' }}>CHRON.</div>
                 </div>
-                <div className="login-tagline">Visual Autography of My Journey.</div>
+                <div className="login-tagline">A visual autobiography of your journey.</div>
 
                 {/* Card */}
                 <div className="login-card anim-scale-in">
@@ -98,7 +96,7 @@ export default function LoginPage() {
                         <button
                             className="link-btn"
                             onClick={() => setIsSignUp(!isSignUp)}
-                            style={{ color: 'var(--cyan)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                            style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                         >
                             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
                         </button>
