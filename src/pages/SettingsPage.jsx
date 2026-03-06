@@ -50,7 +50,7 @@ export default function SettingsPage() {
             const url = URL.createObjectURL(blob);
             const a = Object.assign(document.createElement('a'), {
                 href: url,
-                download: `king-diaries-${new Date().toISOString().split('T')[0]}.json`,
+                download: `new-chron-${new Date().toISOString().split('T')[0]}.json`,
             });
             a.click();
             URL.revokeObjectURL(url);
@@ -140,6 +140,27 @@ export default function SettingsPage() {
                 </div>
             </div>
 
+            {/* Journaling Time */}
+            <div className="settings-card">
+                <h2>Journaling Time</h2>
+                <p>Set the time you'd like to be reminded to journal. The day modal will auto-open at this time.</p>
+                <div style={{ marginBottom: '1rem' }}>
+                    <label className="field-label">Auto-open Time</label>
+                    <input
+                        className="text-input"
+                        type="time"
+                        value={settings.journalingTime || '21:00'}
+                        onChange={e => setSettings(s => ({ ...s, journalingTime: e.target.value }))}
+                    />
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: '0.5rem' }}>
+                        The day modal will automatically open at this time each day when you visit.
+                    </p>
+                </div>
+                <button className="btn-outline" onClick={doSaveSettings}>
+                    <Save size={14} /> Save Time
+                </button>
+            </div>
+
             {/* Data */}
             <div className="settings-card">
                 <h2>Data Management</h2>
@@ -159,7 +180,7 @@ export default function SettingsPage() {
 
             {/* About */}
             <div className="settings-card">
-                <h2>About King Diaries</h2>
+                <h2>About new chron</h2>
                 <p>
                     A visual autobiography of your emotional journey. Every square holds a memory,
                     every color tells a story. Built just for you — your data, your server.

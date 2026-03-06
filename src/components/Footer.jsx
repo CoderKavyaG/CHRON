@@ -3,7 +3,7 @@ export default function Footer() {
         <footer className="site-footer">
             <div className="site-footer__inner">
                 <div className="site-footer__left">
-                    <span>King Diaries &copy; {new Date().getFullYear()}</span>
+                    <span>new chron &copy; {new Date().getFullYear()}</span>
                     <span className="site-footer__sep">·</span>
                     <span>
                         Built by{' '}

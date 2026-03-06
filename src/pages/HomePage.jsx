@@ -51,7 +51,7 @@ export default function HomePage() {
 
         try {
             const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
-            const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=sunset+landscape&rating=g`);
+            const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=minimalist+architecture+dark&rating=g`);
             const data = await response.json();
 
             if (data.data?.images?.original?.url) {
@@ -92,6 +92,39 @@ export default function HomePage() {
         }
     }, [user]);
 
+    // Check journaling time and auto-open modal
+    useEffect(() => {
+        if (!user || loading) return;
+
+        const checkAndOpenModal = async () => {
+            try {
+                const settings = await api.getSettings();
+                const journalingTime = settings?.journalingTime || '21:00';
+                const [hours] = journalingTime.split(':').map(Number);
+
+                const now = new Date();
+                const currentHours = now.getHours();
+
+                // Auto-open if current time is within the journaling hour
+                if (currentHours === hours && !showModal) {
+                    const lastAutoOpenKey = `lastAutoOpen-${todayKey}`;
+                    const lastAutoOpen = localStorage.getItem(lastAutoOpenKey);
+
+                    // Only auto-open once per day
+                    if (!lastAutoOpen) {
+                        setDay({ dateKey: todayKey, isValid: true });
+                        setShowModal(true);
+                        localStorage.setItem(lastAutoOpenKey, new Date().toISOString());
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to check journaling time', err);
+            }
+        };
+
+        checkAndOpenModal();
+    }, [user, loading, todayKey, showModal]);
+
     useEffect(() => {
         if (user) {
             fetchData();
@@ -113,7 +146,10 @@ export default function HomePage() {
                         </p>
 
                         <div className="quote-box">
-                            {gifUrl && <img src={gifUrl} className="quote-box__bg" alt="" />}
+                            {gifUrl && <img src={gifUrl} className="quote-box__bg" alt="Daily inspiration" />}
+                            <div className="quote-box__content">
+                                {/* Quote text removed as requested */}
+                            </div>
                         </div>
                     </div>
 
