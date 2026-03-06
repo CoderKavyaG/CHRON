@@ -87,7 +87,7 @@ export default function SettingsPage() {
 
     return (
         <div className="page-settings anim-fade-in">
-            <Link to="/" className="settings-back">
+            <Link to="/app" className="settings-back">
                 <ArrowLeft size={15} /> Back to Diaries
             </Link>
 

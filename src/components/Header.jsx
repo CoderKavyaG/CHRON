@@ -8,7 +8,7 @@ export default function Header() {
     return (
         <header className="site-header">
             <div className="site-header__inner">
-                <Link to="/" className="site-logo">
+                <Link to="/app" className="site-logo">
                     <Crown size={20} strokeWidth={2.5} />
                     <span>KING DIARIES</span>
                 </Link>

@@ -28,7 +28,7 @@ export default function LoginPage() {
                 await apiLogin(email, password);
                 toast.success('Welcome back! ✨');
             }
-            navigate('/');
+            navigate('/app');
         } catch (err) {
             setError(err.message || 'Authentication failed');
         } finally {
