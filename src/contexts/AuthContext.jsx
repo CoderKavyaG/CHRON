@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 const AuthCtx = createContext(null);
 
@@ -16,8 +16,16 @@ export function AuthProvider({ children }) {
         return unsubscribe;
     }, []);
 
+    const logout = useCallback(async () => {
+        try {
+            await signOut(auth);
+        } catch (err) {
+            console.error('Logout failed', err);
+        }
+    }, []);
+
     return (
-        <AuthCtx.Provider value={{ user, authed: !!user, loading }}>
+        <AuthCtx.Provider value={{ user, authed: !!user, loading, logout }}>
             {!loading && children}
         </AuthCtx.Provider>
     );

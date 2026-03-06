@@ -77,6 +77,4 @@ export const ReviewCategory = {
 export const DEFAULT_CATEGORIES = [
     { value: ReviewCategory.WORK, label: 'Work', emoji: '💼' },
     { value: ReviewCategory.PERSONAL, label: 'Personal', emoji: '🏠' },
-    { value: ReviewCategory.LEARNING, label: 'Learning', emoji: '📚' },
-    { value: ReviewCategory.HEALTH, label: 'Health', emoji: '🏃' },
 ];
