@@ -283,7 +283,7 @@ This project is personal and built with care. Feel free to use it for your own j
 
 Inspired by [Archivist](https://archivist.ramx.in/) by [@ramxcodes](https://x.com/ramxcodes)
 
-Built with ❤️ by [Kavya](https://x.com/goelsahhab)
+Built with ❤️ by [Kavya](https://x.com/goelsahhab) and [Ishan](https://x.com/ishankumax)
 
 ---
 

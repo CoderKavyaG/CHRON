@@ -3,12 +3,16 @@ export default function Footer() {
         <footer className="site-footer">
             <div className="site-footer__inner">
                 <div className="site-footer__left">
-                    <span>new chron &copy; {new Date().getFullYear()}</span>
+                    <span>CHRON &copy; {new Date().getFullYear()}</span>
                     <span className="site-footer__sep">·</span>
                     <span>
                         Built by{' '}
                         <a href="https://x.com/goelsahhab" target="_blank" rel="noopener noreferrer" className="site-footer__link">
                             @goelsahhab
+                        </a>
+                        {' '}and{' '}
+                        <a href="https://x.com/ishankumax" target="_blank" rel="noopener noreferrer" className="site-footer__link">
+                            @ishankumax
                         </a>
                     </span>
                 </div>

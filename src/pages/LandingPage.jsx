@@ -1035,6 +1035,17 @@ export default function LandingPage() {
                                 >
                                     @goelsahhab
                                 </a>
+                                {' '}and{' '}
+                                <a
+                                    href="https://x.com/ishankumax"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: 'var(--color-cream)', transition: 'color 0.2s' }}
+                                    onMouseEnter={e => e.target.style.color = 'var(--color-accent)'}
+                                    onMouseLeave={e => e.target.style.color = 'var(--color-cream)'}
+                                >
+                                    @ishankumax
+                                </a>
                             </span>
                         </div>
 
