@@ -6,6 +6,7 @@ import MonthGrid from '../components/MonthGrid';
 import DayModal from '../components/DayModal';
 import GoalSidebar from '../components/GoalSidebar';
 import { useAuth } from '../contexts/AuthContext';
+import { MOTIVATIONAL_QUOTES } from '../lib/quotes';
 
 function YearProgress({ year }) {
     const now = new Date();
@@ -36,6 +37,81 @@ export default function HomePage() {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [gifUrl, setGifUrl] = useState('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGI2YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjY4YjYvZW5waGlidS9naWZfMjAwX3MuaWYo/iIqcyCdJMuepI0v62K/giphy.gif');
+    const [quote, setQuote] = useState(() => {
+        const cached = localStorage.getItem('motivation_quote');
+        const date = localStorage.getItem('motivation_quote_date');
+        const todayStr = new Date().toDateString();
+        if (cached && date === todayStr) return JSON.parse(cached);
+        return MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+    });
+    const [reshuffles, setReshuffles] = useState(() => {
+        const count = localStorage.getItem('motivation_reshuffle_count');
+        const date = localStorage.getItem('motivation_reshuffle_date');
+        const todayStr = new Date().toDateString();
+        if (date === todayStr) {
+            return parseInt(count || '0', 10);
+        }
+        return 0;
+    });
+
+    const handleReshuffle = async () => {
+        if (reshuffles >= 3) return;
+
+        const loadingToast = toast.loading('Aligning the stars...');
+
+        try {
+            const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
+            const queries = [
+                'interstellar cinemagraph aesthetic',
+                'blade runner 2049 cinematic loop',
+                'batman dark atmosphere cinemagraph',
+                'movie scene powerful cinemagraph',
+                'landscape cinematic loop atmosphere',
+                'minimalist architecture cinematic dark',
+                'architectural loop cinemagraph'
+            ];
+            const q = queries[Math.floor(Math.random() * queries.length)];
+            const offset = Math.floor(Math.random() * 50);
+
+            const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${q}&limit=1&offset=${offset}&rating=pg-13`);
+
+            if (response.status === 429) {
+                throw new Error('RATE_LIMIT');
+            }
+
+            const data = await response.json();
+
+            if (data.data?.[0]?.images?.original?.url) {
+                const newUrl = data.data[0].images.original.url;
+                const newCount = reshuffles + 1;
+                const todayStr = new Date().toDateString();
+
+                // Shuffle quote too
+                const newQuote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+
+                setGifUrl(newUrl);
+                setReshuffles(newCount);
+                setQuote(newQuote);
+
+                localStorage.setItem('motivation_gif_url', newUrl);
+                localStorage.setItem('motivation_gif_date', todayStr);
+                localStorage.setItem('motivation_reshuffle_count', newCount.toString());
+                localStorage.setItem('motivation_reshuffle_date', todayStr);
+                localStorage.setItem('motivation_quote', JSON.stringify(newQuote));
+                localStorage.setItem('motivation_quote_date', todayStr);
+
+                toast.success(`${3 - newCount} reshuffles remaining. Stay focused.`, { id: loadingToast });
+            } else {
+                toast.error('Giphy is taking a breather. Try again shortly.', { id: loadingToast });
+            }
+        } catch (err) {
+            console.error('Reshuffle failed', err);
+            const msg = err.message === 'RATE_LIMIT'
+                ? 'Rate limit hit. The universe says wait a moment.'
+                : 'Failed to find a new vibe.';
+            toast.error(msg, { id: loadingToast });
+        }
+    };
 
     const fetchGif = useCallback(async () => {
         const CACHE_KEY = 'motivation_gif_url';
@@ -51,14 +127,29 @@ export default function HomePage() {
 
         try {
             const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
-            const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=minimalist+architecture+dark&rating=g`);
+            const queries = [
+                'interstellar cinematic aesthetic',
+                'batman dark atmosphere cinemagraph',
+                'blade runner loop',
+                'minimalist architecture cinematic',
+                'landscape atmosphere cinemagraph'
+            ];
+            const q = queries[Math.floor(Math.random() * queries.length)];
+            const offset = Math.floor(Math.random() * 40);
+            const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${q}&limit=1&offset=${offset}&rating=pg-13`);
             const data = await response.json();
 
-            if (data.data?.images?.original?.url) {
-                const newUrl = data.data.images.original.url;
+            if (data.data?.[0]?.images?.original?.url) {
+                const newUrl = data.data[0].images.original.url;
                 setGifUrl(newUrl);
                 localStorage.setItem(CACHE_KEY, newUrl);
                 localStorage.setItem(DATE_KEY, todayStr);
+
+                // Also save current quote if not cached for today
+                if (!localStorage.getItem('motivation_quote_date')) {
+                    localStorage.setItem('motivation_quote', JSON.stringify(quote));
+                    localStorage.setItem('motivation_quote_date', todayStr);
+                }
             } else if (cachedUrl) {
                 setGifUrl(cachedUrl);
             }
@@ -66,7 +157,7 @@ export default function HomePage() {
             console.error('Giphy API fetch failed', err);
             if (cachedUrl) setGifUrl(cachedUrl);
         }
-    }, []);
+    }, [quote]);
 
     const { user, loading: authLoading } = useAuth();
     const userName = (user?.displayName || 'Adventurer').toUpperCase();
@@ -147,8 +238,20 @@ export default function HomePage() {
 
                         <div className="quote-box">
                             {gifUrl && <img src={gifUrl} className="quote-box__bg" alt="Daily inspiration" />}
+
+                            {reshuffles < 3 && user && (
+                                <button
+                                    className="reshuffle-btn"
+                                    onClick={handleReshuffle}
+                                    title={`Reshuffle GIF (${3 - reshuffles} left)`}
+                                >
+                                    RE ({3 - reshuffles})
+                                </button>
+                            )}
+
                             <div className="quote-box__content">
-                                {/* Quote text removed as requested */}
+                                <div className="quote-box__text">"{quote.text}"</div>
+                                <div className="quote-box__sub">— {quote.author}</div>
                             </div>
                         </div>
                     </div>
